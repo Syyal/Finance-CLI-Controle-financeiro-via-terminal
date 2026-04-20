@@ -25,14 +25,13 @@ jobs:
         pip install pytest
 
     - name: Run tests
-      run: pytest
+      run: PYTHONPATH=$PWD pytest
 
   deploy:
     name: CD - Deploy
     runs-on: ubuntu-latest
     needs: test
 
-    # só executa deploy na main
     if: github.ref == 'refs/heads/main'
 
     steps:
