@@ -1,0 +1,57 @@
+name: CI-CD
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: CI - Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pytest
+
+    - name: Run tests
+      run: pytest
+
+    - name: Send Discord Notification (CI)
+      if: always()
+      run: |
+        curl -H "Content-Type: application/json" \
+        -X POST \
+        -d "{\"content\": \" CI finalizado!\nStatus: ${{ job.status }}\nBranch: ${{ github.ref_name }}\"}" \
+        ${{ secrets.DISCORD_WEBHOOK }}
+
+  deploy:
+    name: CD - Deploy
+    runs-on: ubuntu-latest
+    needs: test
+
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Deploy application
+      run: echo "Deploy realizado com sucesso"
+
+    - name: Send Discord Notification (CD)
+      if: always()
+      run: |
+        curl -H "Content-Type: application/json" \
+        -X POST \
+        -d "{\"content\": \" Deploy executado!\nStatus: ${{ job.status }}\"}" \
+        ${{ secrets.DISCORD_WEBHOOK }}
