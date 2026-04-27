@@ -25,14 +25,14 @@ jobs:
         pip install pytest
 
     - name: Run tests
-      run: pytest
+      run: PYTHONPATH=$PWD pytest
 
     - name: Send Discord Notification (CI)
       if: always()
       run: |
         curl -H "Content-Type: application/json" \
         -X POST \
-        -d "{\"content\": \" CI finalizado!\nStatus: ${{ job.status }}\nBranch: ${{ github.ref_name }}\"}" \
+        -d "{\"content\": \"CI finalizado\nRepositorio: ${{ github.repository }}\nStatus: ${{ job.status }}\nBranch: ${{ github.ref_name }}\"}" \
         ${{ secrets.DISCORD_WEBHOOK }}
 
   deploy:
@@ -53,5 +53,5 @@ jobs:
       run: |
         curl -H "Content-Type: application/json" \
         -X POST \
-        -d "{\"content\": \" Deploy executado!\nStatus: ${{ job.status }}\"}" \
+        -d "{\"content\": \"Deploy executado\nRepositorio: ${{ github.repository }}\nStatus: ${{ job.status }}\"}" \
         ${{ secrets.DISCORD_WEBHOOK }}
